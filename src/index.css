@@ -10,8 +10,14 @@
   --color-accent-coral: #F46A6A;
   --color-text-primary: #1F2937;
   --color-text-secondary: #64748B;
+  --color-border: #E8E2D9;
   --color-success: #5A8F6B;
   --color-error: #F46A6A;
+
+  /* Category colours */
+  --color-cat-policies: #4F46E5;
+  --color-cat-processes: #0891B2;
+  --color-cat-systems: #D97706;
 
   /* Typography */
   --font-display: "Fraunces", serif;

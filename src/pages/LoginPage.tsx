@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { useAuth } from '../hooks/useAuth'
 
 export function LoginPage() {
@@ -10,83 +11,84 @@ export function LoginPage() {
 
   async function handleGoogleSignIn() {
     setError('')
-    try {
-      await signInWithGoogle()
-    } catch {
-      setError('Could not start Google sign-in. Try again.')
-    }
+    try { await signInWithGoogle() }
+    catch { setError('Could not start Google sign-in. Try again.') }
   }
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
     const name = displayName.trim()
     if (!name) { setError('Enter a display name.'); return }
-    if (name.length > 30) { setError('Name must be 30 characters or fewer.'); return }
+    if (name.length > 30) { setError('Max 30 characters.'); return }
     setError('')
     setLoading(true)
-    try {
-      await register(name)
-    } catch {
-      setError('Something went wrong. Try again.')
-      setLoading(false)
-    }
+    try { await register(name) }
+    catch { setError('Something went wrong. Try again.'); setLoading(false) }
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 gap-8">
-      <div className="flex flex-col items-center gap-3 text-center">
+    <div className="min-h-dvh flex flex-col items-center justify-center px-5 py-10 gap-8 bg-bg-primary">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex flex-col items-center gap-2 text-center"
+      >
         <picture>
-          <source srcSet="/mascot/hero.webp" type="image/webp" />
-          <img
-            src="/mascot/hero.png"
-            alt="Work Pass Dinosaur"
-            className="w-72 max-w-full"
-            loading="eager"
-          />
+          <source srcSet="/mascot/neutral.webp" type="image/webp" />
+          <img src="/mascot/neutral.png" alt="Work Pass Dinosaur" className="w-48" loading="eager" />
         </picture>
-        <p className="text-text-secondary text-base italic">Ancient Wisdom, transforming with the times</p>
-      </div>
+        <h1 className="font-display text-3xl font-bold text-text-primary">Work Pass Dinosaur</h1>
+        <p className="text-text-secondary text-sm italic">Ancient Wisdom, transforming with the times</p>
+      </motion.div>
 
-      <div className="w-full max-w-sm flex flex-col gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.25 }}
+        className="w-full max-w-xs flex flex-col gap-3"
+      >
         {!showNameForm ? (
           <>
             <button
               onClick={handleGoogleSignIn}
-              className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl bg-accent-primary text-white font-semibold text-base hover:opacity-90 transition-opacity"
+              className="flex items-center justify-center gap-2.5 w-full py-3.5 px-4 rounded-2xl bg-text-primary text-white font-semibold text-base shadow-md hover:opacity-90 active:scale-[0.98] transition-all"
             >
               <GoogleIcon />
               Continue with Google
             </button>
-
             <button
               onClick={() => setShowNameForm(true)}
-              className="text-text-secondary text-sm underline underline-offset-2 hover:text-text-primary transition-colors text-center"
+              className="text-text-secondary text-sm underline underline-offset-2 hover:text-text-primary transition-colors text-center py-1"
             >
               Continue without signing in
             </button>
+            {error && <p className="text-error text-sm text-center">{error}</p>}
           </>
         ) : (
           <form onSubmit={handleRegister} className="flex flex-col gap-3">
-            <label className="text-text-primary text-sm font-semibold" htmlFor="display-name">
-              What should we call you on the leaderboard?
-            </label>
-            <input
-              id="display-name"
-              type="text"
-              value={displayName}
-              onChange={e => setDisplayName(e.target.value)}
-              placeholder="Display name (max 30 chars)"
-              maxLength={30}
-              autoFocus
-              className="w-full px-4 py-3 rounded-xl border border-text-secondary/30 bg-bg-card text-text-primary placeholder:text-text-secondary text-base focus:outline-none focus:ring-2 focus:ring-accent-primary"
-            />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-text-primary text-sm font-semibold" htmlFor="display-name">
+                What should we call you?
+              </label>
+              <input
+                id="display-name"
+                type="text"
+                value={displayName}
+                onChange={e => setDisplayName(e.target.value)}
+                placeholder="Display name (max 30 chars)"
+                maxLength={30}
+                autoFocus
+                className="w-full px-4 py-3 rounded-xl border-2 border-border bg-bg-card text-text-primary placeholder:text-text-secondary/60 text-base focus:outline-none focus:border-accent-primary transition-colors"
+              />
+            </div>
             {error && <p className="text-error text-sm">{error}</p>}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 rounded-xl bg-accent-primary text-white font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="w-full py-3.5 rounded-2xl bg-accent-primary text-white font-bold text-base shadow-md hover:opacity-90 disabled:opacity-50 transition-opacity"
             >
-              {loading ? 'Setting up…' : 'Let\'s go'}
+              {loading ? 'Setting up…' : "Let's go →"}
             </button>
             <button
               type="button"
@@ -97,9 +99,11 @@ export function LoginPage() {
             </button>
           </form>
         )}
+      </motion.div>
 
-        {error && !showNameForm && <p className="text-error text-sm text-center">{error}</p>}
-      </div>
+      <p className="text-text-secondary/50 text-xs text-center max-w-xs">
+        3 questions on work pass policies, processes &amp; systems. Daily. ~2 minutes.
+      </p>
     </div>
   )
 }

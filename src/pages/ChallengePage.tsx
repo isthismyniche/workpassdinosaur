@@ -2,18 +2,24 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { apiGet, apiPost } from '../lib/api'
+import { CircularTimer } from '../components/CircularTimer'
 import type { TodayQuestion, TodayResponse, Option, Certainty } from '../types'
 
 type Phase = 'loading' | 'error' | 'question' | 'transition' | 'done'
 
 const TIMER_SECONDS = 30
-const URGENCY_THRESHOLD = 5
 const TRANSITION_MS = 700
 
-const CERTAINTY_OPTIONS: { value: Certainty; label: string }[] = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
+const CATEGORY_META: Record<string, { label: string; color: string; bg: string }> = {
+  policies:  { label: 'Policies',  color: 'text-cat-policies',  bg: 'bg-cat-policies' },
+  processes: { label: 'Processes', color: 'text-cat-processes', bg: 'bg-cat-processes' },
+  systems:   { label: 'Systems',   color: 'text-cat-systems',   bg: 'bg-cat-systems'  },
+}
+
+const CERTAINTY_OPTIONS: { value: Certainty; label: string; pts: number }[] = [
+  { value: 'low',    label: 'Low',    pts: 10 },
+  { value: 'medium', label: 'Medium', pts: 20 },
+  { value: 'high',   label: 'High',   pts: 30 },
 ]
 
 export function ChallengePage() {
@@ -36,16 +42,13 @@ export function ChallengePage() {
     setSubmitting(true)
     stopTimer()
     setPhase('transition')
-
     try {
       await apiPost('/api/submit', {
         questionId: qId,
         submittedOption: option,
         certainty: certainty ?? undefined,
       })
-    } catch {
-      // If 409 (already submitted), treat as ok and advance
-    }
+    } catch { /* 409 = already submitted, treat as ok */ }
 
     setTimeout(() => {
       setSelectedOption(null)
@@ -53,10 +56,7 @@ export function ChallengePage() {
       setSubmitting(false)
       setCurrentIdx(prev => {
         const next = prev + 1
-        if (next >= 3) {
-          setPhase('done')
-          return prev
-        }
+        if (next >= 3) { setPhase('done'); return prev }
         setTimeLeft(TIMER_SECONDS)
         setPhase('question')
         return next
@@ -67,16 +67,9 @@ export function ChallengePage() {
   useEffect(() => {
     apiGet<TodayResponse>('/api/today')
       .then(data => {
-        const qs = data.questions
-        // Handle mid-session abandonment: forfeit any in-progress unanswered questions
-        const firstUnsubmitted = qs.findIndex(q => !q.submitted)
-        if (firstUnsubmitted === -1) {
-          // All done — go straight to reveal
-          navigate('/reveal', { replace: true })
-          return
-        }
-        // Forfeit questions that were in-between (submitted gaps shouldn't happen but guard it)
-        setQuestions(qs)
+        const firstUnsubmitted = data.questions.findIndex(q => !q.submitted)
+        if (firstUnsubmitted === -1) { navigate('/reveal', { replace: true }); return }
+        setQuestions(data.questions)
         setCurrentIdx(firstUnsubmitted)
         setPhase('question')
         setTimeLeft(TIMER_SECONDS)
@@ -84,7 +77,6 @@ export function ChallengePage() {
       .catch(() => setPhase('error'))
   }, [navigate])
 
-  // Timer
   useEffect(() => {
     if (phase !== 'question') return
     stopTimer()
@@ -124,99 +116,117 @@ export function ChallengePage() {
 
   if (phase === 'transition') {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-6 px-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex-1 flex flex-col items-center justify-center gap-4"
+      >
         <picture>
           <source srcSet="/mascot/thinking.webp" type="image/webp" />
-          <img src="/mascot/thinking.png" alt="Dino thinking" className="w-48" />
+          <img src="/mascot/thinking.png" alt="Dino thinking" className="w-44" />
         </picture>
-        <p className="text-text-secondary text-sm">Submitted ✓</p>
-      </div>
+        <p className="text-text-secondary text-sm font-semibold tracking-wide">Logged ✓</p>
+      </motion.div>
     )
   }
 
   const question = questions[currentIdx]
   if (!question) return null
-
-  const isUrgent = timeLeft <= URGENCY_THRESHOLD
-  const categoryLabel: Record<string, string> = {
-    policies: 'Policies',
-    processes: 'Processes',
-    systems: 'Systems',
-  }
+  const cat = CATEGORY_META[question.category] ?? CATEGORY_META.policies
 
   return (
-    <div className="flex-1 flex flex-col max-w-lg mx-auto w-full px-4 py-6 gap-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-text-secondary uppercase tracking-wide">
-          {categoryLabel[question.category]} · Q{currentIdx + 1} of 3
-        </span>
-        <span className={`text-xl font-bold tabular-nums transition-colors ${isUrgent ? 'text-error animate-pulse' : 'text-text-secondary'}`}>
-          {timeLeft}s
-        </span>
+    <div className="flex-1 flex flex-col max-w-lg mx-auto w-full">
+      {/* Progress bar */}
+      <div className="flex gap-1.5 px-4 pt-5 pb-3">
+        {[0, 1, 2].map(i => (
+          <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i < currentIdx ? 'bg-accent-primary' : i === currentIdx ? cat.bg + ' opacity-70' : 'bg-border'}`} />
+        ))}
       </div>
 
-      {/* Question */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={question.id}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2 }}
-          className="flex flex-col gap-5"
-        >
-          <p className="font-display text-xl font-semibold text-text-primary leading-snug">
-            {question.questionText}
-          </p>
-
-          {/* Options */}
-          <div className="flex flex-col gap-3">
-            {(Object.entries(question.options) as [Option, string][]).map(([key, text]) => (
-              <button
-                key={key}
-                onClick={() => setSelectedOption(key)}
-                className={`text-left px-4 py-3 rounded-xl border-2 text-base transition-all ${
-                  selectedOption === key
-                    ? 'border-accent-primary bg-accent-primary/10 text-text-primary font-semibold'
-                    : 'border-black/10 bg-bg-card text-text-primary hover:border-accent-primary/50'
-                }`}
-              >
-                <span className="font-bold mr-2">{key}.</span>{text}
-              </button>
-            ))}
+      <div className="flex-1 flex flex-col px-4 pb-6 gap-5">
+        {/* Header: category + timer */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-opacity-10 ${cat.color}`}
+                  style={{ backgroundColor: 'color-mix(in srgb, currentColor 12%, transparent)' }}>
+              {cat.label}
+            </span>
+            <span className="text-text-secondary text-xs">{currentIdx + 1} of 3</span>
           </div>
+          <CircularTimer timeLeft={timeLeft} total={TIMER_SECONDS} />
+        </div>
 
-          {/* Certainty */}
-          <div className="flex flex-col gap-2">
-            <p className="text-sm text-text-secondary font-semibold">How certain are you?</p>
-            <div className="flex gap-2">
-              {CERTAINTY_OPTIONS.map(({ value, label }) => (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={question.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.18 }}
+            className="flex flex-col gap-5"
+          >
+            {/* Question */}
+            <p className="font-display text-xl font-semibold text-text-primary leading-snug">
+              {question.questionText}
+            </p>
+
+            {/* Options */}
+            <div className="flex flex-col gap-2.5">
+              {(Object.entries(question.options) as [Option, string][]).map(([key, text]) => (
                 <button
-                  key={value}
-                  onClick={() => setSelectedCertainty(value)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold border-2 transition-all ${
-                    selectedCertainty === value
-                      ? 'border-accent-warm bg-accent-warm/10 text-text-primary'
-                      : 'border-black/10 bg-bg-card text-text-secondary hover:border-accent-warm/50'
+                  key={key}
+                  onClick={() => setSelectedOption(key)}
+                  className={`text-left px-4 py-3.5 rounded-2xl border-2 text-[15px] leading-snug transition-all duration-150 ${
+                    selectedOption === key
+                      ? `border-cat-${question.category} bg-opacity-8 font-semibold text-text-primary shadow-sm`
+                      : 'border-border bg-bg-card text-text-primary hover:border-text-secondary/40 hover:shadow-sm'
                   }`}
+                  style={selectedOption === key ? {
+                    borderColor: `var(--color-cat-${question.category})`,
+                    backgroundColor: `color-mix(in srgb, var(--color-cat-${question.category}) 8%, white)`,
+                  } : {}}
                 >
-                  {label}
+                  <span className="font-bold mr-2.5 text-text-secondary">{key}</span>{text}
                 </button>
               ))}
             </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
 
-      {/* Submit */}
-      <button
-        onClick={() => submit(selectedOption, selectedCertainty, question.id)}
-        disabled={submitting}
-        className="mt-auto w-full py-4 rounded-2xl bg-accent-primary text-white font-bold text-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-      >
-        Submit
-      </button>
+            {/* Certainty */}
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-text-secondary font-semibold">How certain are you?</p>
+              <div className="grid grid-cols-3 gap-2">
+                {CERTAINTY_OPTIONS.map(({ value, label, pts }) => (
+                  <button
+                    key={value}
+                    onClick={() => setSelectedCertainty(value)}
+                    className={`flex flex-col items-center py-2.5 px-2 rounded-xl border-2 text-sm transition-all duration-150 ${
+                      selectedCertainty === value
+                        ? 'border-accent-warm bg-accent-warm/10 text-text-primary font-bold shadow-sm'
+                        : 'border-border bg-bg-card text-text-secondary hover:border-accent-warm/50'
+                    }`}
+                  >
+                    <span className="font-semibold">{label}</span>
+                    <span className="text-xs mt-0.5 opacity-70">±{pts} pts</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Submit */}
+        <button
+          onClick={() => submit(selectedOption, selectedCertainty, question.id)}
+          disabled={submitting}
+          className={`mt-auto w-full py-4 rounded-2xl font-bold text-lg transition-all ${
+            selectedOption
+              ? 'bg-accent-primary text-white shadow-md hover:opacity-90 active:scale-[0.98]'
+              : 'bg-bg-secondary text-text-secondary cursor-default'
+          }`}
+        >
+          {selectedOption ? 'Submit →' : 'Pick an answer'}
+        </button>
+      </div>
     </div>
   )
 }
