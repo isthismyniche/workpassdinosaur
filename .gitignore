@@ -1,0 +1,36 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+
+# Environment
+.env
+.env.local
+*.local
+
+# Vercel
+.vercel
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+
+# Question ingestion data (review TSV is local-only, not committed)
+data/
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Original staging folder for mascot images (canonical copies are in assets/source/)
+dino_images/

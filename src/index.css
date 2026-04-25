@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette — warm, playful, anchored on dino artwork */
+  --color-bg-primary: #FFFCF5;
+  --color-bg-secondary: #F5F0E8;
+  --color-bg-card: #FFFFFF;
+  --color-accent-primary: #5A8F6B;
+  --color-accent-warm: #C9A063;
+  --color-accent-coral: #F46A6A;
+  --color-text-primary: #1F2937;
+  --color-text-secondary: #64748B;
+  --color-success: #5A8F6B;
+  --color-error: #F46A6A;
+
+  /* Typography */
+  --font-display: "Fraunces", serif;
+  --font-body: "Nunito", sans-serif;
+}
+
+/* Base styles */
+body {
+  margin: 0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
