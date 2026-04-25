@@ -56,6 +56,7 @@ export interface LeaderboardEntry {
 
 export interface MeResponse {
   displayName: string
+  googleLinked: boolean
   totalScore: number
   daysPlayed: number
   calibrationPct: number | null

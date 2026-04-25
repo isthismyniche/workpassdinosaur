@@ -16,7 +16,7 @@ export default async function handler(req: Request) {
   const supabase = getSupabase()
 
   const [userRes, summariesRes] = await Promise.all([
-    supabase.from('users').select('display_name').eq('id', userId).single(),
+    supabase.from('users').select('display_name, google_sub').eq('id', userId).single(),
     supabase.from('daily_summaries').select('date, total_score, high_correct, high_total').eq('user_id', userId).order('date', { ascending: false }),
   ])
 
@@ -63,6 +63,7 @@ export default async function handler(req: Request) {
 
   return json({
     displayName: userRes.data.display_name,
+    googleLinked: !!userRes.data.google_sub,
     totalScore,
     daysPlayed,
     calibrationPct,
