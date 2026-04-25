@@ -14,18 +14,18 @@ const CATEGORY_META: Record<string, { label: string; color: string }> = {
 }
 
 function scoreBand(score: number): { frame: string; caption: string } {
-  if (score >= 60)  return { frame: 'happy',   caption: 'Maximum dino confidence. Outstanding.' }
-  if (score >= 20)  return { frame: 'happy',   caption: 'Great work. The dino approves.' }
-  if (score >= -10) return { frame: 'neutral',  caption: 'Solid effort. Every day is a lesson.' }
-  if (score >= -50) return { frame: 'sad',      caption: 'Rough one. Time to hit the policy docs.' }
-  return                    { frame: 'sad',     caption: "Tomorrow's another day. Onward." }
+  if (score === 90)  return { frame: 'celebrating', caption: 'Perfect game. Ancient Wisdom at its finest.' }
+  if (score >= 60)   return { frame: 'galaxy',      caption: 'Maximum dino confidence. Outstanding.' }
+  if (score >= 20)   return { frame: 'hologram',    caption: 'Great work. The tech is strong with you.' }
+  if (score >= -10)  return { frame: 'neutral',     caption: 'Solid effort. Every day is a lesson.' }
+  if (score >= -50)  return { frame: 'smoke',       caption: 'Rough one. Time to hit the policy docs.' }
+  return                    { frame: 'lost',        caption: "Tomorrow's another day. Onward." }
 }
 
 function ScoreHero({ totalScore }: { totalScore: number }) {
   const abs = Math.abs(totalScore)
   const counted = useCountUp(abs, 800)
   const { frame, caption } = scoreBand(totalScore)
-  const isMilestone = totalScore === 90
 
   return (
     <motion.div
@@ -53,14 +53,6 @@ function ScoreHero({ totalScore }: { totalScore: number }) {
         >
           {totalScore >= 0 ? '+' : '−'}{counted}
         </motion.p>
-        {isMilestone && (
-          <motion.p
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }}
-            className="text-accent-warm font-semibold text-sm"
-          >
-            ✨ Perfect game! Ancient Wisdom, transforming with the times ✨
-          </motion.p>
-        )}
         <p className="text-text-secondary text-sm">{caption}</p>
       </div>
     </motion.div>

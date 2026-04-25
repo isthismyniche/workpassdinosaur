@@ -44,8 +44,8 @@ export function HomePage() {
             className="flex flex-col items-center gap-6 w-full"
           >
             <picture>
-              <source srcSet="/mascot/neutral.webp" type="image/webp" />
-              <img src="/mascot/neutral.png" alt="Work Pass Dinosaur" className="w-52" loading="eager" />
+              <source srcSet="/mascot/hero.webp" type="image/webp" />
+              <img src="/mascot/hero.png" alt="Work Pass Dinosaur" className="w-72" loading="eager" />
             </picture>
             <div className="text-center flex flex-col gap-1.5">
               <h1 className="font-display text-3xl font-bold text-text-primary">Work Pass Dinosaur</h1>

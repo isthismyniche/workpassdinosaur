@@ -59,7 +59,13 @@ export function LeaderboardPage() {
   return (
     <div className="flex-1 flex flex-col">
       <main className="flex-1 flex flex-col max-w-lg mx-auto w-full px-4 py-6 gap-6">
-        <h1 className="font-display text-2xl font-bold text-text-primary">Leaderboard</h1>
+        <div className="flex items-center gap-3">
+          <picture>
+            <source srcSet="/mascot/pointing.webp" type="image/webp" />
+            <img src="/mascot/pointing.png" alt="" className="w-16" loading="lazy" />
+          </picture>
+          <h1 className="font-display text-2xl font-bold text-text-primary">Leaderboard</h1>
+        </div>
 
         {/* Tab switcher */}
         <div className="flex rounded-xl overflow-hidden border border-black/10">

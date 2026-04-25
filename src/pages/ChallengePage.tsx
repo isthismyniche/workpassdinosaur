@@ -153,7 +153,23 @@ export function ChallengePage() {
             </span>
             <span className="text-text-secondary text-xs">{currentIdx + 1} of 3</span>
           </div>
-          <CircularTimer timeLeft={timeLeft} total={TIMER_SECONDS} />
+          <div className="flex items-center gap-2">
+            <AnimatePresence>
+              {timeLeft <= 5 && (
+                <motion.picture
+                  key="nervous"
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.6 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <source srcSet="/mascot/nervous.webp" type="image/webp" />
+                  <img src="/mascot/nervous.png" alt="" className="w-10" />
+                </motion.picture>
+              )}
+            </AnimatePresence>
+            <CircularTimer timeLeft={timeLeft} total={TIMER_SECONDS} />
+          </div>
         </div>
 
         <AnimatePresence mode="wait">

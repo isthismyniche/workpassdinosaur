@@ -35,8 +35,8 @@ export function LoginPage() {
         className="flex flex-col items-center gap-2 text-center"
       >
         <picture>
-          <source srcSet="/mascot/neutral.webp" type="image/webp" />
-          <img src="/mascot/neutral.png" alt="Work Pass Dinosaur" className="w-48" loading="eager" />
+          <source srcSet="/mascot/hero.webp" type="image/webp" />
+          <img src="/mascot/hero.png" alt="Work Pass Dinosaur" className="w-72" loading="eager" />
         </picture>
         <h1 className="font-display text-3xl font-bold text-text-primary">Work Pass Dinosaur</h1>
         <p className="text-text-secondary text-sm italic">Ancient Wisdom, transforming with the times</p>
