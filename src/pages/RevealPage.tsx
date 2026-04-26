@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ExternalLink } from 'lucide-react'
@@ -13,19 +13,77 @@ const CATEGORY_META: Record<string, { label: string; color: string }> = {
   systems:   { label: 'Systems',   color: '#D97706' },
 }
 
+function pick(arr: string[]) {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
+const SCORE_BANDS: Array<{
+  min: number; frame: string; captions: string[]
+}> = [
+  {
+    min: 90, frame: 'celebrating', captions: [
+      "All three correct, all the certainty justified. That is exactly what this game is supposed to feel like.",
+      "Flawless. You knew it, you knew you knew it, and you were right on all counts. The dino is genuinely impressed, which doesn't happen often.",
+      "Right, right, right — confident, confident, confident. The work pass bows. The dino bows. Everyone bows.",
+      "That was the dream round. Not lucky, not guessed — earned. Come back tomorrow and do it again.",
+    ],
+  },
+  {
+    min: 60, frame: 'galaxy', captions: [
+      "The gap between knowing something and knowing that you know it is the whole game. You cleared it today. With room to spare.",
+      "Bertrand Russell said those who feel certainty are usually the ones who shouldn't. Today you proved him wrong.",
+      "High stakes where you knew it, caution where you weren't sure. That's textbook calibration. Very well played.",
+      "Confidence earned, accuracy delivered. Genuinely difficult to pull off. The dino is not easily moved. Today, however.",
+      "You actually know this stuff. The certainty wasn't bravado — it was justified. That's the whole point of the game.",
+    ],
+  },
+  {
+    min: 20, frame: 'hologram', captions: [
+      "More right than wrong, and your certainty pulled back when it needed to. That's not nothing — that's good judgment.",
+      "Solid. The knowledge is building. The calibration is working. Come back tomorrow a little bolder where you know it.",
+      "Not bad at all. Stephen Hawking said the illusion of knowledge is the greatest enemy. You avoided the illusion today, at least.",
+      "You know more than you think you do, and you were appropriately cautious about the rest. Keep at it.",
+      "Decent round. The gap between what you know and what you think you know is narrowing. That's the whole exercise.",
+    ],
+  },
+  {
+    min: -10, frame: 'neutral', captions: [
+      "Mixed bag. The knowledge is patchy, the certainty sometimes wandered off on its own. Both are very fixable things.",
+      "Somewhere between 'got this' and 'absolutely did not have this.' Honest truth: most rounds look like this at the start.",
+      "Darwin observed that ignorance begets confidence more often than knowledge does. Today's score suggests that's still in progress.",
+      "The dino has seen worse. The dino has also seen better. This sits in the middle, which is where most real learning begins.",
+      "Not your best, probably not your worst. The important thing is you showed up and now you know things you didn't before.",
+    ],
+  },
+  {
+    min: -50, frame: 'smoke', captions: [
+      "Got cocky there, didn't you. High certainty on wrong answers is a very specific kind of expensive.",
+      "The greatest obstacle to discovery is not ignorance — it is the illusion of knowledge. Today you ran straight into the obstacle.",
+      "You were confident. You were wrong. You were confidently wrong. There's a name for that, and it costs points.",
+      "The certainty was bold. The accuracy did not keep up. These two are supposed to travel together.",
+      "Somewhere out there, Bertrand Russell is nodding. He said the cocksure are usually the ones who shouldn't be. Today, with love, that was you.",
+    ],
+  },
+  {
+    min: -Infinity, frame: 'lost', captions: [
+      "Mark Twain put it best: it's not what you don't know that gets you in trouble. It's what you know for sure that just ain't so. Today was Twain's day.",
+      "High certainty. Wrong. High certainty. Wrong again. The dino watched this unfold in real time with genuine fascination.",
+      "Oscar Wilde said he wasn't young enough to know everything. Worth sitting with today.",
+      "That is a masterclass in confident incorrectness. A rare achievement. Not the kind you frame, but rare nonetheless.",
+      "That's a significant number of points to leave on the floor with that level of conviction. The ancient wisdom will still be here tomorrow.",
+    ],
+  },
+]
+
 function scoreBand(score: number): { frame: string; caption: string } {
-  if (score === 90)  return { frame: 'celebrating', caption: 'Perfect game. Knowledge mastered, certainty calibrated.' }
-  if (score >= 60)   return { frame: 'galaxy',      caption: 'Maximum dino confidence. Outstanding.' }
-  if (score >= 20)   return { frame: 'hologram',    caption: 'Great work. The tech is strong with you.' }
-  if (score >= -10)  return { frame: 'neutral',     caption: 'Solid effort. Every day is a lesson.' }
-  if (score >= -50)  return { frame: 'smoke',       caption: 'Rough one. Time to hit the policy docs.' }
-  return                    { frame: 'lost',        caption: "Tomorrow's another day. Onward." }
+  const band = SCORE_BANDS.find(b => score >= b.min) ?? SCORE_BANDS[SCORE_BANDS.length - 1]
+  return { frame: band.frame, caption: pick(band.captions) }
 }
 
 function ScoreHero({ totalScore }: { totalScore: number }) {
   const abs = Math.abs(totalScore)
   const counted = useCountUp(abs, 800)
-  const { frame, caption } = scoreBand(totalScore)
+  const { frame, caption } = useMemo(() => scoreBand(totalScore), [totalScore])
 
   return (
     <motion.div

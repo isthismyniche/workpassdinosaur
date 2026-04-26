@@ -10,6 +10,31 @@ type Phase = 'loading' | 'error' | 'question' | 'transition' | 'done'
 const TIMER_SECONDS = 30
 const TRANSITION_MS = 700
 
+const TRANSITION_MESSAGES = [
+  "Filed. The dino's expression betrayed nothing. This could mean anything.",
+  "In it goes. Whether it ages well is entirely up to the reveal screen.",
+  "Locked in. Interesting choice of certainty level. We'll say that much.",
+  "No take-backs. No regrets. Well — possibly some regrets.",
+  "The ancient one has received your answer with great inscrutability.",
+  "That looked like confidence. We'll find out shortly if it was earned.",
+  "The work pass has opinions. They'll surface at the end.",
+  "Whatever face you're making right now, the dino has seen it before.",
+  "The certainty dial was noted. No further comment.",
+  "You had thirty seconds. The dino watched. That's all we'll say.",
+  "The dino doesn't do spoilers.",
+  "On to the next. The dino remains professionally neutral.",
+  "Committed. The reckoning is a couple of questions away.",
+  "Noted with a raised eyebrow. Which you can't see. But it's there.",
+  "That's in. The face is inscrutable. This tells you nothing.",
+  "One thing's for certain: you answered. Whether correctly is a separate matter entirely.",
+  "The dino saw exactly how long you thought about that.",
+  "The work pass is listening. It always is.",
+]
+
+function pickTransitionMsg() {
+  return TRANSITION_MESSAGES[Math.floor(Math.random() * TRANSITION_MESSAGES.length)]
+}
+
 const CATEGORY_META: Record<string, { label: string; color: string; bg: string }> = {
   policies:  { label: 'Policies',  color: 'text-cat-policies',  bg: 'bg-cat-policies' },
   processes: { label: 'Processes', color: 'text-cat-processes', bg: 'bg-cat-processes' },
@@ -31,6 +56,7 @@ export function ChallengePage() {
   const [selectedCertainty, setSelectedCertainty] = useState<Certainty | null>(null)
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS)
   const [submitting, setSubmitting] = useState(false)
+  const [transitionMsg, setTransitionMsg] = useState('')
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const stopTimer = useCallback(() => {
@@ -41,6 +67,7 @@ export function ChallengePage() {
     if (submitting) return
     setSubmitting(true)
     stopTimer()
+    setTransitionMsg(pickTransitionMsg())
     setPhase('transition')
     try {
       await apiPost('/api/submit', {
@@ -125,7 +152,7 @@ export function ChallengePage() {
           <source srcSet="/mascot/thinking.webp" type="image/webp" />
           <img src="/mascot/thinking.png" alt="Dino thinking" className="w-44" />
         </picture>
-        <p className="text-text-secondary text-sm font-semibold tracking-wide">Logged ✓</p>
+        <p className="text-text-secondary text-sm leading-relaxed text-center max-w-xs px-4">{transitionMsg}</p>
       </motion.div>
     )
   }
