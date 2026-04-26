@@ -47,6 +47,21 @@ function splitTsvRows(content: string): string[] {
   return rows
 }
 
+// Excel (Singapore locale) reformats ISO dates to D/M/YY on save.
+// This converts any D/M/YY or DD/MM/YYYY variant back to YYYY-MM-DD.
+function normalizeDate(raw: string): string | null {
+  if (!raw) return null
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw          // already ISO
+  const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/) // D/M/YY or D/M/YYYY
+  if (m) {
+    const day = m[1].padStart(2, '0')
+    const month = m[2].padStart(2, '0')
+    const year = m[3].length === 2 ? '20' + m[3] : m[3]
+    return `${year}-${month}-${day}`
+  }
+  return raw
+}
+
 function parseTsvLine(line: string): string[] {
   const fields: string[] = []
   let current = ''
@@ -120,7 +135,7 @@ async function main() {
       option_d:         get('option_d'),
       correct_option:   get('correct_option').toUpperCase(),
       explanation:      get('explanation'),
-      source_fetched_at: get('source_fetched_at') || null,
+      source_fetched_at: normalizeDate(get('source_fetched_at')),
       difficulty:       get('difficulty') || 'hard',
     }
 
