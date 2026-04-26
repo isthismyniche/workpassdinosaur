@@ -39,7 +39,7 @@ export function LoginPage() {
           <img src="/mascot/hero.png" alt="Work Pass Dinosaur" className="w-72" loading="eager" />
         </picture>
         <h1 className="font-display text-3xl font-bold text-text-primary">Work Pass Dinosaur</h1>
-        <p className="text-text-secondary text-sm italic">Ancient Wisdom, transforming with the times</p>
+        <p className="text-text-secondary text-sm font-semibold">Build your knowledge. Calibrate your certainty.</p>
       </motion.div>
 
       <motion.div
@@ -101,8 +101,8 @@ export function LoginPage() {
         )}
       </motion.div>
 
-      <p className="text-text-secondary/50 text-xs text-center max-w-xs">
-        3 questions on work pass policies, processes &amp; systems. Daily. ~2 minutes.
+      <p className="text-text-secondary/60 text-xs text-center max-w-xs leading-relaxed">
+        Master work pass knowledge, harness the ancient wisdom. Three questions daily — policies, processes, systems. Accuracy matters, confidence pays. But overconfidence hurts.
       </p>
     </div>
   )

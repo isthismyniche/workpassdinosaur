@@ -14,7 +14,7 @@ const CATEGORY_META: Record<string, { label: string; color: string }> = {
 }
 
 function scoreBand(score: number): { frame: string; caption: string } {
-  if (score === 90)  return { frame: 'celebrating', caption: 'Perfect game. Ancient Wisdom at its finest.' }
+  if (score === 90)  return { frame: 'celebrating', caption: 'Perfect game. Knowledge mastered, certainty calibrated.' }
   if (score >= 60)   return { frame: 'galaxy',      caption: 'Maximum dino confidence. Outstanding.' }
   if (score >= 20)   return { frame: 'hologram',    caption: 'Great work. The tech is strong with you.' }
   if (score >= -10)  return { frame: 'neutral',     caption: 'Solid effort. Every day is a lesson.' }
@@ -229,7 +229,7 @@ export function RevealPage() {
         </div>
 
         <p className="text-center text-text-secondary italic text-xs pb-2">
-          Ancient Wisdom, transforming with the times
+          Build your knowledge. Calibrate your certainty.
         </p>
       </main>
       <Nav />

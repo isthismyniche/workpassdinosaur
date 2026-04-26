@@ -47,9 +47,12 @@ export function HomePage() {
               <source srcSet="/mascot/hero.webp" type="image/webp" />
               <img src="/mascot/hero.png" alt="Work Pass Dinosaur" className="w-72" loading="eager" />
             </picture>
-            <div className="text-center flex flex-col gap-1.5">
+            <div className="text-center flex flex-col gap-2">
               <h1 className="font-display text-3xl font-bold text-text-primary">Work Pass Dinosaur</h1>
-              <p className="text-text-secondary text-sm italic">Ancient Wisdom, transforming with the times</p>
+              <p className="text-text-secondary text-sm font-semibold">Build your knowledge. Calibrate your certainty.</p>
+              <p className="text-text-secondary/70 text-xs leading-relaxed max-w-xs mx-auto">
+                Master work pass knowledge, harness the ancient wisdom. Three questions daily — policies, processes, systems. Accuracy matters, confidence pays. But overconfidence hurts.
+              </p>
             </div>
             <div className="w-full flex flex-col gap-2">
               <div className="flex justify-between text-xs text-text-secondary px-1 mb-1">
@@ -63,7 +66,6 @@ export function HomePage() {
               >
                 Start today's challenge →
               </button>
-              <p className="text-center text-text-secondary text-xs">3 questions · ~2 minutes</p>
             </div>
           </motion.div>
         )}
