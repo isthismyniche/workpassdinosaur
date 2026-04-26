@@ -10,7 +10,7 @@ interface BoardResponse {
 
 function Board({ entries }: { entries: LeaderboardEntry[] }) {
   if (entries.length === 0) {
-    return <p className="text-text-secondary text-center py-8">No scores yet.</p>
+    return <p className="text-text-secondary text-center py-8">No dino creds yet.</p>
   }
   return (
     <div className="flex flex-col gap-1">

@@ -31,3 +31,7 @@ export function clearUser(): void {
   localStorage.removeItem(GOOGLE_LINKED_KEY)
   localStorage.removeItem(PENDING_LINK_KEY)
 }
+
+const SEEN_INTRO_KEY = 'work_pass_dinosaur_seen_intro'
+export function getSeenIntro(): boolean { return localStorage.getItem(SEEN_INTRO_KEY) === 'true' }
+export function setSeenIntro(): void { localStorage.setItem(SEEN_INTRO_KEY, 'true') }

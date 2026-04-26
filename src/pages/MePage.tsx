@@ -114,9 +114,9 @@ export function MePage() {
             <div className="flex items-start gap-3">
               <AlertTriangle size={18} className="text-accent-warm shrink-0 mt-0.5" />
               <div className="flex flex-col gap-0.5">
-                <p className="text-sm font-bold text-text-primary">Your scores aren't backed up</p>
+                <p className="text-sm font-bold text-text-primary">Your dino creds aren't backed up</p>
                 <p className="text-xs text-text-secondary leading-relaxed">
-                  Connect Google to protect your scores and streak across devices. If this browser's cache is cleared, your progress could be lost.
+                  Connect Google to protect your dino creds and streak across devices. If this browser's cache is cleared, your progress could be lost.
                 </p>
               </div>
             </div>
@@ -142,7 +142,7 @@ export function MePage() {
                style={{ backgroundColor: 'color-mix(in srgb, #5A8F6B 8%, white)' }}>
             <ShieldCheck size={18} className="text-success shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-text-primary">Scores backed up</p>
+              <p className="text-sm font-semibold text-text-primary">Dino creds backed up</p>
               <p className="text-xs text-text-secondary">Google account connected — your progress is safe.</p>
             </div>
           </div>
@@ -151,7 +151,7 @@ export function MePage() {
         {/* Stats grid */}
         {stats && (
           <div className="grid grid-cols-2 gap-3">
-            <StatCard label="Total score"
+            <StatCard label="Total dino creds"
               value={stats.totalScore > 0 ? `+${stats.totalScore}` : String(stats.totalScore)}
               highlight={stats.totalScore >= 0} />
             <StatCard label="Days played" value={String(stats.daysPlayed)} />

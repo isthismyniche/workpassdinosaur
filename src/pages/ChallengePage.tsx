@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { apiGet, apiPost } from '../lib/api'
+import { getSeenIntro, setSeenIntro } from '../lib/storage'
 import { CircularTimer } from '../components/CircularTimer'
 import type { TodayQuestion, TodayResponse, Option, Certainty } from '../types'
 
@@ -57,6 +58,7 @@ export function ChallengePage() {
   const [submitting, setSubmitting] = useState(false)
   const [transitionMsg, setTransitionMsg] = useState('')
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [showIntro, setShowIntro] = useState(() => !getSeenIntro())
 
   const stopTimer = useCallback(() => {
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
@@ -105,7 +107,7 @@ export function ChallengePage() {
   }, [navigate])
 
   useEffect(() => {
-    if (phase !== 'question') return
+    if (phase !== 'question' || showIntro) return
     stopTimer()
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
@@ -119,7 +121,7 @@ export function ChallengePage() {
       })
     }, 1000)
     return stopTimer
-  }, [phase, currentIdx, questions, submit, stopTimer])
+  }, [phase, currentIdx, questions, submit, stopTimer, showIntro])
 
   useEffect(() => {
     if (phase === 'done') navigate('/reveal', { replace: true })
@@ -179,6 +181,7 @@ export function ChallengePage() {
   const cat = CATEGORY_META[question.category] ?? CATEGORY_META.policies
 
   return (
+    <>
     <div className="flex-1 flex flex-col max-w-lg mx-auto w-full">
       {/* Progress bar */}
       <div className="flex gap-1.5 px-4 pt-5 pb-3">
@@ -266,7 +269,7 @@ export function ChallengePage() {
                     }`}
                   >
                     <span className="font-semibold">{label}</span>
-                    <span className="text-xs mt-0.5 opacity-70">±{pts} pts</span>
+                    <span className="text-xs mt-0.5 opacity-70">±{pts} creds</span>
                   </button>
                 ))}
               </div>
@@ -294,5 +297,56 @@ export function ChallengePage() {
         })()}
       </div>
     </div>
+    {showIntro && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-5 bg-black/60 backdrop-blur-sm">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 16 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+          className="bg-bg-card rounded-3xl shadow-2xl p-6 max-w-sm w-full flex flex-col gap-4 items-center text-center"
+        >
+          <picture>
+            <source srcSet="/mascot/hero.webp" type="image/webp" />
+            <img src="/mascot/hero.png" alt="Work Pass Dinosaur" className="w-28" />
+          </picture>
+          <h2 className="font-display text-xl font-bold text-text-primary">How Work Pass Dinosaur works</h2>
+          <div className="flex flex-col gap-3 text-left w-full text-sm">
+            <p className="text-text-secondary leading-relaxed">
+              Three questions a day — one each from Policies, Processes, and Systems.
+            </p>
+            <p className="text-text-secondary leading-relaxed">
+              For each question, pick your answer. Then declare how certain you are:
+            </p>
+            <div className="bg-black/5 rounded-xl p-3 flex flex-col gap-1.5">
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Low certainty</span>
+                <span className="font-semibold text-text-primary">±10 dino creds</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">Medium</span>
+                <span className="font-semibold text-text-primary">±20 dino creds</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-secondary">High</span>
+                <span className="font-semibold text-text-primary">±30 dino creds</span>
+              </div>
+            </div>
+            <p className="text-text-secondary leading-relaxed">
+              Right answer: earn the creds. Wrong: lose them. The dino rewards knowledge and punishes bluster in equal measure.
+            </p>
+            <p className="text-text-secondary leading-relaxed">
+              Collect more dino creds every day to climb to the top of the herd — weekly and all-time leaderboards await.
+            </p>
+          </div>
+          <button
+            onClick={() => { setSeenIntro(); setShowIntro(false) }}
+            className="w-full py-4 rounded-2xl bg-accent-primary text-white font-bold text-lg shadow-md hover:opacity-90 active:scale-[0.98] transition-all"
+          >
+            Got it — let's play →
+          </button>
+        </motion.div>
+      </div>
+    )}
+    </>
   )
 }

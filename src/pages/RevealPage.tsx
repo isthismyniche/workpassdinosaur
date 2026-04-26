@@ -59,7 +59,7 @@ const SCORE_BANDS: Array<{
     min: -50, frame: 'smoke', captions: [
       "Got cocky there, didn't you. High certainty on wrong answers is a very specific kind of expensive.",
       "The greatest obstacle to discovery is not ignorance — it is the illusion of knowledge. Today you ran straight into the obstacle.",
-      "You were confident. You were wrong. You were confidently wrong. There's a name for that, and it costs points.",
+      "You were confident. You were wrong. You were confidently wrong. There's a name for that, and it costs dino creds.",
       "The certainty was bold. The accuracy did not keep up. These two are supposed to travel together.",
       "Somewhere out there, Bertrand Russell is nodding. He said the cocksure are usually the ones who shouldn't be. Today, with love, that was you.",
     ],
@@ -70,7 +70,7 @@ const SCORE_BANDS: Array<{
       "High certainty. Wrong. High certainty. Wrong again. The dino watched this unfold in real time with genuine fascination.",
       "Oscar Wilde said he wasn't young enough to know everything. Worth sitting with today.",
       "That is a masterclass in confident incorrectness. A rare achievement. Not the kind you frame, but rare nonetheless.",
-      "That's a significant number of points to leave on the floor with that level of conviction. The ancient wisdom will still be here tomorrow.",
+      "That's a lot of dino creds to leave on the floor with that level of conviction. The ancient wisdom will still be here tomorrow.",
     ],
   },
 ]
@@ -102,7 +102,7 @@ function ScoreHero({ totalScore }: { totalScore: number }) {
       </motion.picture>
 
       <div className="flex flex-col gap-1">
-        <p className="text-text-secondary text-xs font-bold uppercase tracking-widest">Today's score</p>
+        <p className="text-text-secondary text-xs font-bold uppercase tracking-widest">Today's dino creds</p>
         <motion.p
           initial={{ opacity: 0, scale: 0.7 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -121,8 +121,8 @@ function QuestionCard({ q, index }: { q: RevealQuestion; index: number }) {
   const cat = CATEGORY_META[q.category]
   const certLabel = { low: 'Low', medium: 'Medium', high: 'High' }[q.certainty]
   const breakdown = q.isCorrect
-    ? `Correct · ${certLabel} certainty → +${q.scoreDelta}`
-    : `Incorrect · ${certLabel} certainty → ${q.scoreDelta}`
+    ? `Correct · ${certLabel} certainty → +${q.scoreDelta} creds`
+    : `Incorrect · ${certLabel} certainty → ${q.scoreDelta} creds`
 
   return (
     <motion.div
@@ -195,9 +195,31 @@ function QuestionCard({ q, index }: { q: RevealQuestion; index: number }) {
   )
 }
 
+function RankFanfare({ rank }: { rank: number }) {
+  const copy =
+    rank === 1 ? "Top of the herd. The dino bows." :
+    rank <= 3  ? "On the podium. The ancient wisdom is working." :
+    rank <= 10 ? "Top 10. The dino sees you rising." :
+                 "Every round counts. Keep climbing."
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.45 }}
+      className="flex flex-col items-center gap-1.5 rounded-2xl py-4 px-6 text-center border border-accent-primary/25"
+      style={{ backgroundColor: 'color-mix(in srgb, var(--color-accent-primary, #6366f1) 8%, white)' }}
+    >
+      <p className="text-xs font-bold uppercase tracking-widest text-accent-primary">This week's rank</p>
+      <p className="font-display text-5xl font-bold text-accent-primary">#{rank}</p>
+      <p className="text-text-secondary text-sm">{copy}</p>
+    </motion.div>
+  )
+}
+
 export function RevealPage() {
   const navigate = useNavigate()
   const [data, setData] = useState<RevealResponse | null>(null)
+  const [weeklyRank, setWeeklyRank] = useState<number | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -207,6 +229,9 @@ export function RevealPage() {
         if (err?.status === 403) setError('Complete all 3 questions first.')
         else setError('Could not load results.')
       })
+    apiGet<{ entries: unknown[]; userRank: number | null }>('/api/leaderboard/weekly')
+      .then(d => setWeeklyRank(d.userRank))
+      .catch(() => {})
   }, [])
 
   if (error) {
@@ -244,6 +269,8 @@ export function RevealPage() {
       <main className="flex-1 flex flex-col max-w-lg mx-auto w-full px-4 py-6 gap-6">
 
         <ScoreHero totalScore={data.totalScore} />
+
+        {weeklyRank !== null && <RankFanfare rank={weeklyRank} />}
 
         {/* Quick stats row */}
         <motion.div

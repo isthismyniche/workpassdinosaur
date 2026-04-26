@@ -11,6 +11,7 @@ export function HomePage() {
   const navigate = useNavigate()
   const [state, setState] = useState<HomeState>('loading')
   const [submittedCount, setSubmittedCount] = useState(0)
+  const [weeklyRank, setWeeklyRank] = useState<number | null>(null)
 
   useEffect(() => {
     apiGet<TodayResponse>('/api/today')
@@ -19,7 +20,12 @@ export function HomePage() {
         setSubmittedCount(submitted)
         if (submitted === 0) setState('not-started')
         else if (submitted < 3) setState('in-progress')
-        else setState('done')
+        else {
+          setState('done')
+          apiGet<{ entries: unknown[]; userRank: number | null }>('/api/leaderboard/weekly')
+            .then(d => setWeeklyRank(d.userRank))
+            .catch(() => {})
+        }
       })
       .catch(() => setState('error'))
   }, [])
@@ -115,6 +121,12 @@ export function HomePage() {
               <h2 className="font-display text-2xl font-bold text-text-primary">You've played today</h2>
               <p className="text-text-secondary text-sm">Come back tomorrow for a fresh set</p>
             </div>
+            {weeklyRank !== null && (
+              <div className="px-4 py-2 rounded-full border border-accent-primary/30"
+                   style={{ backgroundColor: 'color-mix(in srgb, var(--color-accent-primary, #6366f1) 10%, white)' }}>
+                <span className="font-bold text-accent-primary text-sm">#{weeklyRank} this week</span>
+              </div>
+            )}
             <div className="flex gap-3 w-full">
               <button
                 onClick={() => navigate('/reveal')}
