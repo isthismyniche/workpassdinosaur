@@ -8,7 +8,6 @@ import type { TodayQuestion, TodayResponse, Option, Certainty } from '../types'
 type Phase = 'loading' | 'error' | 'question' | 'transition' | 'done'
 
 const TIMER_SECONDS = 30
-const TRANSITION_MS = 700
 
 const TRANSITION_MESSAGES = [
   "Filed. The dino's expression betrayed nothing. This could mean anything.",
@@ -76,20 +75,21 @@ export function ChallengePage() {
         certainty: certainty ?? undefined,
       })
     } catch { /* 409 = already submitted, treat as ok */ }
-
-    setTimeout(() => {
-      setSelectedOption(null)
-      setSelectedCertainty(null)
-      setSubmitting(false)
-      setCurrentIdx(prev => {
-        const next = prev + 1
-        if (next >= 3) { setPhase('done'); return prev }
-        setTimeLeft(TIMER_SECONDS)
-        setPhase('question')
-        return next
-      })
-    }, TRANSITION_MS)
+    setSubmitting(false)
   }, [submitting, stopTimer])
+
+  const handleContinue = useCallback(() => {
+    setSelectedOption(null)
+    setSelectedCertainty(null)
+    const next = currentIdx + 1
+    if (next >= 3) {
+      setPhase('done')
+    } else {
+      setTimeLeft(TIMER_SECONDS)
+      setPhase('question')
+      setCurrentIdx(next)
+    }
+  }, [currentIdx])
 
   useEffect(() => {
     apiGet<TodayResponse>('/api/today')
@@ -141,18 +141,35 @@ export function ChallengePage() {
     )
   }
 
+  if (phase === 'done') {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-3">
+        <div className="w-8 h-8 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-text-secondary text-sm">Loading your results…</p>
+      </div>
+    )
+  }
+
   if (phase === 'transition') {
+    const isLast = currentIdx === 2
     return (
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex-1 flex flex-col items-center justify-center gap-4"
+        className="flex-1 flex flex-col items-center justify-center gap-6 px-6"
       >
         <picture>
           <source srcSet="/mascot/thinking.webp" type="image/webp" />
           <img src="/mascot/thinking.png" alt="Dino thinking" className="w-44" />
         </picture>
-        <p className="text-text-secondary text-sm leading-relaxed text-center max-w-xs px-4">{transitionMsg}</p>
+        <p className="text-text-secondary text-sm leading-relaxed text-center max-w-xs">{transitionMsg}</p>
+        <button
+          onClick={handleContinue}
+          disabled={submitting}
+          className="w-full max-w-xs py-4 rounded-2xl bg-accent-primary text-white font-bold text-lg shadow-md hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-wait"
+        >
+          {submitting ? 'Submitting…' : isLast ? 'See results →' : 'Next question →'}
+        </button>
       </motion.div>
     )
   }
@@ -258,17 +275,23 @@ export function ChallengePage() {
         </AnimatePresence>
 
         {/* Submit */}
-        <button
-          onClick={() => submit(selectedOption, selectedCertainty, question.id)}
-          disabled={submitting}
-          className={`mt-auto w-full py-4 rounded-2xl font-bold text-lg transition-all ${
-            selectedOption
-              ? 'bg-accent-primary text-white shadow-md hover:opacity-90 active:scale-[0.98]'
-              : 'bg-bg-secondary text-text-secondary cursor-default'
-          }`}
-        >
-          {selectedOption ? 'Submit →' : 'Pick an answer'}
-        </button>
+        {(() => {
+          const ready = !!(selectedOption && selectedCertainty)
+          const label = !selectedOption ? 'Select an answer' : !selectedCertainty ? 'How certain are you?' : 'Submit →'
+          return (
+            <button
+              onClick={() => ready && submit(selectedOption, selectedCertainty, question.id)}
+              disabled={submitting || !ready}
+              className={`mt-auto w-full py-4 rounded-2xl font-bold text-lg transition-all ${
+                ready
+                  ? 'bg-accent-primary text-white shadow-md hover:opacity-90 active:scale-[0.98]'
+                  : 'bg-bg-secondary text-text-secondary cursor-default'
+              }`}
+            >
+              {label}
+            </button>
+          )
+        })()}
       </div>
     </div>
   )
