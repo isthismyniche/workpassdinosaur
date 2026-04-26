@@ -19,7 +19,7 @@ Use this prompt (or a close variant) when starting a Claude Code drafting sessio
 >
 > **Hard rules:**
 > - If a fetched page does not cleanly support a question (page is too vague, the rule is unclear, or the content has changed since the URL was indexed), skip it — add a one-line note in the `notes` field and move on. Never invent or extrapolate.
-> - Do not draft a question from a `source_url` already present in the TSV.
+> - Multiple questions from the same `source_url` are fine **only if each tests a clearly distinct fact** (e.g. one on quota, another on security bond, another on age). Don't draft near-duplicates.
 > - Difficulty should be `hard` unless the question is genuinely straightforward — the target audience already works with these passes daily.
 
 ---
@@ -56,10 +56,37 @@ Use this prompt (or a close variant) when starting a Claude Code drafting sessio
 
 ---
 
+## Distribution targets (load-bearing)
+
+Every batch should rebalance toward gaps in `data/review/questions-for-review.tsv`. Count what's already drafted by category AND by pass type before picking topics.
+
+**Policies** — even mix across the four pass types:
+- Employment Pass (EP)
+- S Pass
+- Work Permit (WP)
+- Migrant Domestic Worker (MDW) Work Permit
+
+**Processes** — same four pass types, but **bias toward Work Permit and MDW WP**. They have more procedural steps even though those steps tend to be less represented on the web — so harder to find, but more valuable to teach.
+
+**Systems** — restrict to these only:
+- **EP eService** (formerly EP Online)
+- **WP eService**
+- **MDW eService**
+- **SGWorkPass** (mobile app + digital pass)
+- **Work Permit Online** (where distinct from WP eService)
+
+**Leave out MyCareersFuture entirely** — it sits under a different agency, not MOM, and is out of scope for this app.
+
+## Reader's lens
+
+Frame every question from the perspective of a citizen or business HR person reading mom.gov.sg trying to make sense of things. Not a regulator's perspective. Not exam-style trivia.
+
+Difficulty should come from subtle distinctions, exception clauses, edge cases, and counter-intuitive rules — **not** from memorising specific dollar amounts or dates without consequence. A good test: if the correct answer is just a number, ask whether the reader walks away with a useful real-world implication. If not, find a different angle on the same source.
+
 ## Topic areas to cover (non-exhaustive)
 
-**Policies:** EP minimum qualifying salary by sector (COMPASS); S Pass quota and levy tiers; Dependant's Pass eligibility by pass type; LOC eligibility; in-principle approval validity; EP renewal criteria; COMPASS framework points and bonuses; EP/S Pass holders switching employers; salary increment requirements on renewal; Fair Consideration Framework obligations.
+**Policies:** EP/S Pass minimum qualifying salary by sector and age; COMPASS framework, exemptions, and bonus criteria (C1–C6); WP source-country and sector rules; WP and S Pass quotas, sub-DRC, and levy tiers; MDW eligibility for both employer and helper; security bond rules for WP/MDW; Dependant's Pass eligibility by pass type; LOC eligibility (DP business owners, LTVP); ONE Pass and PEP eligibility and renewal; Fair Consideration Framework obligations.
 
-**Processes:** documents required for EP/S Pass application or renewal; EP Online vs WPOL transaction routing; what to do when a work pass is rejected; appeal mechanisms and timelines; cancellation and notification obligations on resignation/termination; how to get a reference number; pre-approval and post-approval steps for employers; re-entry permit interactions.
+**Processes:** documents required for application or renewal across all four pass types; cancellation timelines and notification obligations; appeal mechanisms and timelines; pre- and post-arrival processes for WP and MDW (medical exam, settling-in programme, thumbprint, card collection); IPA validity and extension; renewal medical examination (six-monthly FME) for WP holders; repatriation obligations; in-principle approval to issuance.
 
-**Systems:** EP Online functions vs WPOL functions; CorpPass vs SingPass access for employers; what the SGWorkPass mobile app shows vs EP Online; how to delegate access within EP Online; MyMOM Portal self-service features; CorpPass sub-user setup for HR; payment flows for levies and application fees.
+**Systems:** EP eService capabilities and scope; WP eService and Work Permit Online for WP transactions; MDW eService for MDW-specific transactions; SGWorkPass mobile app — digital pass, QR verification by employers, notifications; how the system landscape splits across pass types; CorpPass access requirements for each system.
