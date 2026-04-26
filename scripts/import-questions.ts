@@ -138,15 +138,15 @@ async function main() {
       console.warn(`Row ${i + 1}: missing source_url — skipping`); errors++; continue
     }
 
-    // Dedupe by question_text and source_url
+    // Dedupe by question_text only — multiple questions per source_url are allowed
     const { data: existing } = await supabase
       .from('questions')
       .select('id')
-      .or(`question_text.eq.${row.question_text},source_url.eq.${row.source_url}`)
+      .eq('question_text', row.question_text)
       .limit(1)
 
     if (existing && existing.length > 0) {
-      console.warn(`Row ${i + 1}: duplicate question or source — skipping`)
+      console.warn(`Row ${i + 1}: duplicate question_text — skipping`)
       skipped++
       continue
     }
