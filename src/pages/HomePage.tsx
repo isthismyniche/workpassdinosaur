@@ -53,19 +53,29 @@ export function HomePage() {
               <source srcSet="/mascot/hero.webp" type="image/webp" />
               <img src="/mascot/hero.png" alt="Work Pass Dinosaur" className="w-72" loading="eager" />
             </picture>
-            <div className="text-center flex flex-col gap-2">
+            <div className="text-center flex flex-col gap-3">
               <h1 className="font-display text-3xl font-bold text-text-primary">Work Pass Dinosaur</h1>
               <p className="text-text-secondary text-sm font-semibold">Build your knowledge. Calibrate your certainty.</p>
-              <p className="text-text-secondary/70 text-xs leading-relaxed max-w-xs mx-auto">
-                Master work pass knowledge, harness the ancient wisdom. Three questions daily — policies, processes, systems. Accuracy matters, confidence pays. But overconfidence hurts.
-              </p>
-            </div>
-            <div className="w-full flex flex-col gap-2">
-              <div className="flex justify-between text-xs text-text-secondary px-1 mb-1">
-                <span className="font-semibold" style={{ color: '#4F46E5' }}>Policies</span>
-                <span className="font-semibold" style={{ color: '#0891B2' }}>Processes</span>
-                <span className="font-semibold" style={{ color: '#D97706' }}>Systems</span>
+              <div className="h-px bg-border mx-8" />
+              <div className="flex flex-col gap-2 text-sm max-w-xs mx-auto">
+                <p className="text-text-secondary leading-relaxed">
+                  Master work pass knowledge, harness the ancient wisdom.
+                </p>
+                <div className="flex flex-col items-center gap-1.5">
+                  <p className="text-text-primary font-medium">Three questions daily —</p>
+                  <div className="flex gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ backgroundColor: '#4F46E514', color: '#4F46E5' }}>Policies</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ backgroundColor: '#0891B214', color: '#0891B2' }}>Processes</span>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ backgroundColor: '#D9770614', color: '#D97706' }}>Systems</span>
+                  </div>
+                </div>
+                <p className="text-xs text-text-secondary/80 leading-relaxed">
+                  Accuracy matters, confidence pays.{' '}
+                  <span className="italic" style={{ color: '#F46A6A' }}>But overconfidence hurts.</span>
+                </p>
               </div>
+            </div>
+            <div className="w-full">
               <button
                 onClick={() => navigate('/play')}
                 className="w-full py-4 px-6 rounded-2xl bg-accent-primary text-white font-bold text-lg shadow-md hover:opacity-90 active:scale-[0.98] transition-all"

@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion'
+
 interface CircularTimerProps {
   timeLeft: number
   total: number
@@ -10,10 +12,15 @@ export function CircularTimer({ timeLeft, total }: CircularTimerProps) {
   const circumference = 2 * Math.PI * radius
   const progress = timeLeft / total
   const dashOffset = circumference * (1 - progress)
-  const isUrgent = timeLeft <= 5
+  const isUrgent = timeLeft <= 15
 
   return (
-    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+    <motion.div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+      animate={isUrgent ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+      transition={isUrgent ? { repeat: Infinity, duration: 0.8, ease: 'easeInOut' } : {}}
+    >
       <svg width={size} height={size} className="-rotate-90">
         {/* Track */}
         <circle
@@ -34,9 +41,9 @@ export function CircularTimer({ timeLeft, total }: CircularTimerProps) {
           className={`transition-all duration-1000 ease-linear ${isUrgent ? 'text-error' : 'text-accent-primary'}`}
         />
       </svg>
-      <span className={`absolute font-bold text-base tabular-nums transition-colors ${isUrgent ? 'text-error animate-pulse' : 'text-text-primary'}`}>
+      <span className={`absolute font-bold text-base tabular-nums transition-colors ${isUrgent ? 'text-error' : 'text-text-primary'}`}>
         {timeLeft}
       </span>
-    </div>
+    </motion.div>
   )
 }

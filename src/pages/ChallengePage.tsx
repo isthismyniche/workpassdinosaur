@@ -8,7 +8,7 @@ import type { TodayQuestion, TodayResponse, Option, Certainty } from '../types'
 
 type Phase = 'loading' | 'error' | 'question' | 'transition' | 'done'
 
-const TIMER_SECONDS = 30
+const TIMER_SECONDS = 45
 
 const TRANSITION_MESSAGES = [
   "Filed. The dino's expression betrayed nothing. This could mean anything.",
