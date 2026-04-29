@@ -202,7 +202,7 @@ export function ChallengePage() {
           </div>
           <div className="flex items-center gap-2">
             <AnimatePresence>
-              {timeLeft <= 5 && (
+              {timeLeft <= 15 && (
                 <motion.picture
                   key="nervous"
                   initial={{ opacity: 0, scale: 0.6 }}

@@ -70,8 +70,7 @@ export function HomePage() {
                   </div>
                 </div>
                 <p className="text-xs text-text-secondary/80 leading-relaxed">
-                  Accuracy matters, confidence pays.{' '}
-                  <span className="italic" style={{ color: '#F46A6A' }}>But overconfidence hurts.</span>
+                  Accuracy matters, confidence pays. But overconfidence hurts.
                 </p>
               </div>
             </div>
