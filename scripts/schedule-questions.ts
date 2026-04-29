@@ -20,6 +20,14 @@ function getSupabase() {
   return createClient(url, key)
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
+}
+
 function addDays(dateStr: string, days: number): string {
   const d = new Date(`${dateStr}T00:00:00+08:00`)
   d.setDate(d.getDate() + days)
@@ -94,6 +102,8 @@ async function main() {
       byCategory.get(cat)!.push({ id: q.id, preview: q.question_text.slice(0, 60) })
     }
   }
+  // Shuffle each category independently so topic clusters don't land on consecutive days
+  for (const cat of CATEGORIES) shuffle(byCategory.get(cat)!)
 
   // How many full days can we schedule?
   const available = Math.min(...CATEGORIES.map(c => byCategory.get(c)!.length))
