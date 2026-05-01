@@ -51,6 +51,7 @@ export interface LeaderboardEntry {
   displayName: string
   totalScore: number
   daysPlayed?: number
+  accuracyPct: number | null
   calibrationPct: number | null
   isCurrentUser: boolean
 }

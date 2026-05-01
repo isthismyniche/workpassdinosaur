@@ -16,7 +16,7 @@ export function Nav() {
       </Link>
       <Link to="/leaderboard" className={link('/leaderboard')}>
         <Trophy size={20} />
-        <span>Scores</span>
+        <span>Leaders</span>
       </Link>
       <Link to="/past" className={link('/past')}>
         <Clock size={20} />

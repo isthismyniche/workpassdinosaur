@@ -73,7 +73,7 @@ export default async function handler(req: Request) {
   const isHighCert = certainty === 'high'
   const { data: existing } = await supabase
     .from('daily_summaries')
-    .select('total_score, questions_answered, high_correct, high_total')
+    .select('total_score, questions_answered, correct_count, high_correct, high_total')
     .eq('user_id', userId)
     .eq('date', question.date)
     .single()
@@ -82,6 +82,7 @@ export default async function handler(req: Request) {
     await supabase.from('daily_summaries').update({
       total_score: existing.total_score + scoreDelta,
       questions_answered: existing.questions_answered + 1,
+      correct_count: existing.correct_count + (isCorrect ? 1 : 0),
       high_correct: existing.high_correct + (isHighCert && isCorrect ? 1 : 0),
       high_total: existing.high_total + (isHighCert ? 1 : 0),
     }).eq('user_id', userId).eq('date', question.date)
@@ -91,6 +92,7 @@ export default async function handler(req: Request) {
       date: question.date,
       total_score: scoreDelta,
       questions_answered: 1,
+      correct_count: isCorrect ? 1 : 0,
       high_correct: isHighCert && isCorrect ? 1 : 0,
       high_total: isHighCert ? 1 : 0,
       is_catchup: isCatchup,

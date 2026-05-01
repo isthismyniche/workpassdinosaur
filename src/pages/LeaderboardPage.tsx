@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Info } from 'lucide-react'
 import { apiGet } from '../lib/api'
 import { Nav } from '../components/Nav'
 import type { LeaderboardEntry } from '../types'
@@ -8,12 +9,60 @@ interface BoardResponse {
   userRank: number | null
 }
 
+type TooltipKey = 'score' | 'accuracy' | 'calibration'
+
+const TOOLTIPS: Record<TooltipKey, string> = {
+  score: 'Dino creds earned from correct answers and lost on wrong ones. The stakes scale with certainty — high certainty means ±30 creds.',
+  accuracy: 'Percentage of answered questions that were correct, across all certainty levels.',
+  calibration: 'Of all high-certainty answers, the percentage that were correct. High calibration means your confidence tracks your knowledge.',
+}
+
 function Board({ entries }: { entries: LeaderboardEntry[] }) {
+  const [tooltip, setTooltip] = useState<TooltipKey | null>(null)
+
+  const toggleTooltip = (key: TooltipKey) =>
+    setTooltip(prev => (prev === key ? null : key))
+
   if (entries.length === 0) {
     return <p className="text-text-secondary text-center py-8">No dino creds yet.</p>
   }
+
   return (
     <div className="flex flex-col gap-1">
+      {/* Column headers */}
+      <div className="flex items-center gap-3 px-4 pb-1">
+        <span className="w-7" />
+        <span className="flex-1" />
+        <button
+          onClick={() => toggleTooltip('accuracy')}
+          className={`flex items-center gap-0.5 w-10 justify-end transition-colors ${tooltip === 'accuracy' ? 'text-accent-primary' : 'text-text-secondary hover:text-text-primary'}`}
+        >
+          <span className="text-xs font-semibold">Acc</span>
+          <Info size={10} />
+        </button>
+        <button
+          onClick={() => toggleTooltip('calibration')}
+          className={`flex items-center gap-0.5 w-10 justify-end transition-colors ${tooltip === 'calibration' ? 'text-accent-primary' : 'text-text-secondary hover:text-text-primary'}`}
+        >
+          <span className="text-xs font-semibold">Cal</span>
+          <Info size={10} />
+        </button>
+        <button
+          onClick={() => toggleTooltip('score')}
+          className={`flex items-center gap-0.5 w-14 justify-end transition-colors ${tooltip === 'score' ? 'text-accent-primary' : 'text-text-secondary hover:text-text-primary'}`}
+        >
+          <span className="text-xs font-semibold">Score</span>
+          <Info size={10} />
+        </button>
+      </div>
+
+      {tooltip && (
+        <div className="mx-0 px-4 py-2.5 bg-bg-secondary rounded-xl text-xs text-text-secondary leading-relaxed border border-black/5">
+          <span className="font-semibold text-text-primary capitalize">{tooltip}: </span>
+          {TOOLTIPS[tooltip]}
+        </div>
+      )}
+
       {entries.map(e => (
         <div
           key={e.userId}
@@ -21,10 +70,13 @@ function Board({ entries }: { entries: LeaderboardEntry[] }) {
         >
           <span className="w-7 text-center font-bold text-text-secondary text-sm">{e.rank}</span>
           <span className="flex-1 font-semibold text-text-primary text-sm truncate">{e.displayName}</span>
-          {e.daysPlayed !== undefined && (
-            <span className="text-xs text-text-secondary">{e.daysPlayed}d</span>
-          )}
-          <span className={`font-bold text-sm tabular-nums ${e.totalScore >= 0 ? 'text-success' : 'text-error'}`}>
+          <span className="text-xs text-text-secondary tabular-nums w-10 text-right">
+            {e.accuracyPct !== null ? `${e.accuracyPct}%` : '—'}
+          </span>
+          <span className="text-xs text-text-secondary tabular-nums w-10 text-right">
+            {e.calibrationPct !== null ? `${e.calibrationPct}%` : '—'}
+          </span>
+          <span className={`font-bold text-sm tabular-nums w-14 text-right ${e.totalScore >= 0 ? 'text-success' : 'text-error'}`}>
             {e.totalScore > 0 ? `+${e.totalScore}` : e.totalScore}
           </span>
         </div>

@@ -15,17 +15,19 @@ export default async function handler(req: Request) {
 
   const { data: summaries, error } = await supabase
     .from('daily_summaries')
-    .select('user_id, total_score, questions_answered, high_correct, high_total')
+    .select('user_id, total_score, questions_answered, correct_count, high_correct, high_total')
     .eq('is_catchup', false)
 
   if (error) return json({ error: error.message }, 500)
 
-  const userMap = new Map<string, { totalScore: number; daysPlayed: number; highCorrect: number; highTotal: number }>()
+  const userMap = new Map<string, { totalScore: number; daysPlayed: number; questionsAnswered: number; correctCount: number; highCorrect: number; highTotal: number }>()
   for (const s of (summaries ?? [])) {
-    const existing = userMap.get(s.user_id) ?? { totalScore: 0, daysPlayed: 0, highCorrect: 0, highTotal: 0 }
+    const existing = userMap.get(s.user_id) ?? { totalScore: 0, daysPlayed: 0, questionsAnswered: 0, correctCount: 0, highCorrect: 0, highTotal: 0 }
     userMap.set(s.user_id, {
       totalScore: existing.totalScore + s.total_score,
       daysPlayed: existing.daysPlayed + (s.questions_answered > 0 ? 1 : 0),
+      questionsAnswered: existing.questionsAnswered + s.questions_answered,
+      correctCount: existing.correctCount + s.correct_count,
       highCorrect: existing.highCorrect + s.high_correct,
       highTotal: existing.highTotal + s.high_total,
     })
@@ -50,6 +52,7 @@ export default async function handler(req: Request) {
       displayName: nameMap.get(uid) ?? 'Unknown',
       totalScore: stats.totalScore,
       daysPlayed: stats.daysPlayed,
+      accuracyPct: stats.questionsAnswered > 0 ? Math.round(stats.correctCount / stats.questionsAnswered * 100) : null,
       calibrationPct: stats.highTotal > 0 ? Math.round(calibration * 100) : null,
       _calibration: calibration,
     }
@@ -66,6 +69,7 @@ export default async function handler(req: Request) {
     displayName: e.displayName,
     totalScore: e.totalScore,
     daysPlayed: e.daysPlayed,
+    accuracyPct: e.accuracyPct,
     calibrationPct: e.calibrationPct,
     isCurrentUser: e.userId === userId,
   }))

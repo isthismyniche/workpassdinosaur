@@ -20,7 +20,7 @@ export default async function handler(req: Request) {
   // Aggregate scores and calibration over the 7-day window
   const { data: summaries, error } = await supabase
     .from('daily_summaries')
-    .select('user_id, total_score, high_correct, high_total')
+    .select('user_id, total_score, questions_answered, correct_count, high_correct, high_total')
     .eq('is_catchup', false)
     .gte('date', startDate)
     .lte('date', endDate)
@@ -28,11 +28,13 @@ export default async function handler(req: Request) {
   if (error) return json({ error: error.message }, 500)
 
   // Aggregate per user
-  const userMap = new Map<string, { totalScore: number; highCorrect: number; highTotal: number }>()
+  const userMap = new Map<string, { totalScore: number; questionsAnswered: number; correctCount: number; highCorrect: number; highTotal: number }>()
   for (const s of (summaries ?? [])) {
-    const existing = userMap.get(s.user_id) ?? { totalScore: 0, highCorrect: 0, highTotal: 0 }
+    const existing = userMap.get(s.user_id) ?? { totalScore: 0, questionsAnswered: 0, correctCount: 0, highCorrect: 0, highTotal: 0 }
     userMap.set(s.user_id, {
       totalScore: existing.totalScore + s.total_score,
+      questionsAnswered: existing.questionsAnswered + s.questions_answered,
+      correctCount: existing.correctCount + s.correct_count,
       highCorrect: existing.highCorrect + s.high_correct,
       highTotal: existing.highTotal + s.high_total,
     })
@@ -57,6 +59,7 @@ export default async function handler(req: Request) {
       userId: uid,
       displayName: nameMap.get(uid) ?? 'Unknown',
       totalScore: stats.totalScore,
+      accuracyPct: stats.questionsAnswered > 0 ? Math.round(stats.correctCount / stats.questionsAnswered * 100) : null,
       calibrationPct: stats.highTotal > 0 ? Math.round(calibration * 100) : null,
       _calibration: calibration,
     }
@@ -71,6 +74,7 @@ export default async function handler(req: Request) {
     userId: e.userId,
     displayName: e.displayName,
     totalScore: e.totalScore,
+    accuracyPct: e.accuracyPct,
     calibrationPct: e.calibrationPct,
     isCurrentUser: e.userId === userId,
   }))
