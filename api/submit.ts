@@ -25,7 +25,6 @@ export default async function handler(req: Request) {
   const supabase = getSupabase()
   const today = getTodaySGT()
 
-  // Verify the question belongs to today's set
   const { data: question, error: qErr } = await supabase
     .from('questions')
     .select('id, correct_option, date')
@@ -33,7 +32,9 @@ export default async function handler(req: Request) {
     .single()
 
   if (qErr || !question) return json({ error: 'Question not found' }, 404)
-  if (question.date !== today) return json({ error: 'Question is not from today' }, 400)
+  if (question.date > today) return json({ error: 'Future questions are not available' }, 400)
+
+  const isCatchup = question.date !== today
 
   // Resolve submitted option and certainty
   const submittedOption = body.submittedOption?.toUpperCase() ?? null
@@ -74,7 +75,7 @@ export default async function handler(req: Request) {
     .from('daily_summaries')
     .select('total_score, questions_answered, high_correct, high_total')
     .eq('user_id', userId)
-    .eq('date', today)
+    .eq('date', question.date)
     .single()
 
   if (existing) {
@@ -83,15 +84,16 @@ export default async function handler(req: Request) {
       questions_answered: existing.questions_answered + 1,
       high_correct: existing.high_correct + (isHighCert && isCorrect ? 1 : 0),
       high_total: existing.high_total + (isHighCert ? 1 : 0),
-    }).eq('user_id', userId).eq('date', today)
+    }).eq('user_id', userId).eq('date', question.date)
   } else {
     await supabase.from('daily_summaries').insert({
       user_id: userId,
-      date: today,
+      date: question.date,
       total_score: scoreDelta,
       questions_answered: 1,
       high_correct: isHighCert && isCorrect ? 1 : 0,
       high_total: isHighCert ? 1 : 0,
+      is_catchup: isCatchup,
     })
   }
 

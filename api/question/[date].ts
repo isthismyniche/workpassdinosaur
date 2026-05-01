@@ -45,9 +45,10 @@ export default async function handler(req: Request) {
     .in('question_id', questionIds)
 
   const attemptMap = new Map((attempts ?? []).map(a => [a.question_id, a]))
-  const userAttempted = attemptMap.size > 0
+  const anyAttempted = attemptMap.size > 0
+  const allAttempted = questions.every(q => attemptMap.has(q.id))
 
-  const { data: summary } = userAttempted
+  const { data: summary } = anyAttempted
     ? await supabase
         .from('daily_summaries')
         .select('total_score')
@@ -61,7 +62,7 @@ export default async function handler(req: Request) {
 
   return json({
     date,
-    attempted: userAttempted,
+    allAttempted,
     totalScore: summary?.total_score ?? null,
     questions: sorted.map(q => {
       const attempt = attemptMap.get(q.id)
@@ -73,10 +74,10 @@ export default async function handler(req: Request) {
         sourceUrl: q.source_url,
         sourceFetchedAt: q.source_fetched_at,
       }
-      if (!attempt) return { ...base, locked: true }
+      if (!attempt) return { ...base, submitted: false }
       return {
         ...base,
-        locked: false,
+        submitted: true,
         correctOption: q.correct_option,
         submittedOption: attempt.submitted_option,
         certainty: attempt.certainty,

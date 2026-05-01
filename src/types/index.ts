@@ -40,8 +40,9 @@ export interface RevealResponse {
 
 export interface PastChallenge {
   date: string
-  total_score: number
-  questions_answered: number
+  attempted: boolean
+  total_score: number | null
+  questions_answered: number | null
 }
 
 export interface LeaderboardEntry {

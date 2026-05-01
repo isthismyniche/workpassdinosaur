@@ -21,6 +21,7 @@ export default async function handler(req: Request) {
   const { data: summaries, error } = await supabase
     .from('daily_summaries')
     .select('user_id, total_score, high_correct, high_total')
+    .eq('is_catchup', false)
     .gte('date', startDate)
     .lte('date', endDate)
 

@@ -16,6 +16,7 @@ export default async function handler(req: Request) {
   const { data: summaries, error } = await supabase
     .from('daily_summaries')
     .select('user_id, total_score, questions_answered, high_correct, high_total')
+    .eq('is_catchup', false)
 
   if (error) return json({ error: error.message }, 500)
 

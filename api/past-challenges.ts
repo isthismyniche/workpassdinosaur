@@ -15,14 +15,22 @@ export default async function handler(req: Request) {
   const supabase = getSupabase()
   const today = getTodaySGT()
 
-  const { data, error } = await supabase
-    .from('daily_summaries')
-    .select('date, total_score, questions_answered')
-    .eq('user_id', userId)
-    .lt('date', today)
-    .order('date', { ascending: false })
+  const [questionsRes, summariesRes] = await Promise.all([
+    supabase.from('questions').select('date').lt('date', today).order('date', { ascending: false }),
+    supabase.from('daily_summaries').select('date, total_score, questions_answered').eq('user_id', userId).lt('date', today),
+  ])
 
-  if (error) return json({ error: error.message }, 500)
+  if (questionsRes.error) return json({ error: questionsRes.error.message }, 500)
 
-  return json({ challenges: data ?? [] })
+  const uniqueDates = [...new Set((questionsRes.data ?? []).map(q => q.date))]
+  const summaryMap = new Map((summariesRes.data ?? []).map(s => [s.date, s]))
+
+  const challenges = uniqueDates.map(date => {
+    const summary = summaryMap.get(date)
+    return summary
+      ? { date, attempted: true, total_score: summary.total_score, questions_answered: summary.questions_answered }
+      : { date, attempted: false, total_score: null, questions_answered: null }
+  })
+
+  return json({ challenges })
 }

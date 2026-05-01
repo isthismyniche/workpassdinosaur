@@ -33,7 +33,7 @@ export function PastChallengesPage() {
         )}
 
         {!loading && challenges.length === 0 && (
-          <p className="text-text-secondary text-center py-8">No past challenges yet.</p>
+          <p className="text-text-secondary text-center py-8">No past challenges available yet.</p>
         )}
 
         <div className="flex flex-col gap-2">
@@ -45,11 +45,17 @@ export function PastChallengesPage() {
             >
               <div className="flex flex-col">
                 <span className="text-sm font-semibold text-text-primary">{formatDate(c.date)}</span>
-                <span className="text-xs text-text-secondary">{c.questions_answered}/3 answered</span>
+                {c.attempted
+                  ? <span className="text-xs text-text-secondary">{c.questions_answered}/3 answered</span>
+                  : <span className="text-xs text-text-secondary">Not played</span>
+                }
               </div>
-              <span className={`font-bold text-base tabular-nums ${c.total_score >= 0 ? 'text-success' : 'text-error'}`}>
-                {c.total_score > 0 ? `+${c.total_score}` : c.total_score}
-              </span>
+              {c.attempted && c.total_score !== null
+                ? <span className={`font-bold text-base tabular-nums ${(c.total_score ?? 0) >= 0 ? 'text-success' : 'text-error'}`}>
+                    {(c.total_score ?? 0) > 0 ? `+${c.total_score}` : c.total_score}
+                  </span>
+                : <span className="text-accent-primary text-sm font-semibold">Play →</span>
+              }
             </button>
           ))}
         </div>

@@ -17,7 +17,7 @@ export default async function handler(req: Request) {
 
   const [userRes, summariesRes] = await Promise.all([
     supabase.from('users').select('display_name, google_sub').eq('id', userId).single(),
-    supabase.from('daily_summaries').select('date, total_score, high_correct, high_total').eq('user_id', userId).order('date', { ascending: false }),
+    supabase.from('daily_summaries').select('date, total_score, high_correct, high_total').eq('user_id', userId).eq('is_catchup', false).order('date', { ascending: false }),
   ])
 
   if (userRes.error || !userRes.data) return json({ error: 'User not found' }, 404)
@@ -40,6 +40,7 @@ export default async function handler(req: Request) {
     .from('daily_summaries')
     .select('date, questions_answered')
     .eq('user_id', userId)
+    .eq('is_catchup', false)
     .gt('questions_answered', 0)
     .order('date', { ascending: false })
 
